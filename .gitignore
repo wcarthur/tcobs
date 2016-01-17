@@ -1,0 +1,11 @@
+# R session output files:
+*.Rout
+.Rhistory
+.RData
+
+# RStudio files:
+.Rproj.user/
+
+# emacs backup files:
+*.r~
+
