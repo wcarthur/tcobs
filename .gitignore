@@ -1,11 +1,16 @@
-# R session output files:
-*.Rout
+# History files
 .Rhistory
+.Rapp.history
+
+# Session Data files
 .RData
 
-# RStudio files:
+# Example code in package build process
+*-Ex.R
+
+# RStudio files
 .Rproj.user/
 
-# emacs backup files:
-*.r~
-
+# produced vignettes
+vignettes/*.html
+vignettes/*.pdf
