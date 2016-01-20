@@ -19,7 +19,7 @@
 
 #Required:
 #sdir <<- "/home/asanabri/R/my_rsoftw/"
-indir <- "C:/WorkSpace/tcobs/" #"/media/nHD2/TC_project_09_13/"
+indir <- "C:/WorkSpace/tcobs/"
 setwd(indir)
 #source(paste(sdir,"get_TC_gusts.r",sep="")  )
 #source(paste(sdir,"get_TC_gusts_per_cyclone.r",sep="")  )
@@ -29,10 +29,9 @@ source('get_TC_gusts_per_cyclone.r')
 #
 t1 <- proc.time()
 #Read database of stations affected by TCs:
-
 outdir <- "N:/climate_change/CHARS/B_Wind/data/derived/obs/tc/ibtracs/"
 
-#"/media/nHD2/TC_project_09_13/new_TC_dist_600k/"
+
 #N.B. Change non-readable characters [ ] by " " (stn name should be read as a single string)
 
 fname <- paste(indir, "stn_TC_dist.ibtracs.txt", sep = "")
@@ -93,20 +92,26 @@ for (i in 1:length(grouped_data)) {
                 ",above, y" ,sep = "")
   print(str1)
   # TC_gusts <- get_TC_gusts(all_bomd[bdatas],unique(stn_ST),grouped_data[[i]][8],grouped_data[[i]][9])
-  # Split data into cyclones in order to calc. max speed per cyclone:
+  #print("Split data into cyclones in order to calc. max speed per cyclone")
   cycl_wsp <- cbind(grouped_data[[i]][8], grouped_data[[i]][9], grouped_data[[i]][6])
   cycl_mx_wsp <- split(cycl_wsp, cycl_wsp$V6, drop = TRUE)
   # loop tr' all cyclones:
   for (j in 1:length(cycl_mx_wsp)) {
-    TC_gusts <- get_TC_gusts_per_cyclone(all_bomd[bdatas], unique(stn_ST),
+    #print(paste("Extracting TC gusts for ",as.character(cycl_mx_wsp[[j]][3][1,1])))
+    obs_gusts <- read.csv(all_bomd[bdatas], skip = 1, header = FALSE, strip.white = T)
+    TC_gusts <- get_TC_gusts_per_cyclone(obs_gusts, unique(stn_ST),
                                          cycl_mx_wsp[[j]][1], cycl_mx_wsp[[j]][2],
                                          cycl_mx_wsp[[j]][3])
+
     if (all(is.na(TC_gusts))) next
     # Keep only max wind speed of this cyclone:
-    mx_gwsp <- which(TC_gusts$V17 == max(TC_gusts$V17, na.rm = TRUE))
+    #print("Filter maximum gusts")
+    gusts = as.numeric(TC_gusts$V17)
+    mx_gwsp <- which(gusts == max(gusts, na.rm = TRUE))
     if (length(mx_gwsp) > 1) {
       mx_gwsp = mx_gwsp[1]
     }
+    #print("Appending maximum gust to list of all records")
     all_TC_gusts <- try(rbind(all_TC_gusts, TC_gusts[mx_gwsp,]))
     # all_TC_gusts <- try(rbind(all_TC_gusts,TC_gusts )  ) #write all wnd speeds not only max
   }
@@ -116,6 +121,7 @@ for (i in 1:length(grouped_data)) {
   # write name with 6 digits (as in BoM station name convention):
   new_str <- formatC(unique(grouped_data[[i]]$V2), width = 6, flag = "0")
   out_main <- paste("bom_", new_str, ".csv",sep = "")
+  print(paste("Writing data to: ",out_main))
   write.csv(all_TC_gusts,file = paste(outdir, out_main,sep = "") )
   all_TC_gusts <- c()
 }
