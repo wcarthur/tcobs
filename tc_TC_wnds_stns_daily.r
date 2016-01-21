@@ -30,20 +30,16 @@ source('loadData.r')
 #
 t1 <- proc.time()
 #Read database of stations affected by TCs:
-outdir <- "N:/climate_change/CHARS/B_Wind/data/derived/obs/tc/ibtracs/"
+outdir <- "N:/climate_change/CHARS/B_Wind/data/derived/obs/tc/daily/2006/"
 
+datadir <- "N:/climate_change/CHARS/B_Wind/data/raw/obs/daily/2006/"
 
-#N.B. Change non-readable characters [ ] by " " (stn name should be read as a single string)
-
-fname <- paste(indir, "stn_TC_dist.ibtracs.txt", sep = "")
+fname <- paste(outdir, "stn_TC_dist.txt", sep = "")
 bom_stns_wTC <- read.table(fname, sep = ",", skip = 1, header = F)
 
 #Read BoM datasets (half-hour) located in Dir 'datadir'
-datadir <- "N:/climate_change/CHARS/B_Wind/data/raw/obs/halfhourly/"
-
-
 setwd(datadir)
-all_bomd <- dir(pattern = "HM01X_Data")
+all_bomd <- dir(pattern = "DC02D_Data")
 #List stns not in bom data:
 outf001 <- "stns_not_in_bomd.txt"
 write.table("List of stations not in BoM-provided datasets",
@@ -98,8 +94,8 @@ for (i in 1:length(grouped_data)) {
   cycl_mx_wsp <- split(cycl_wsp, cycl_wsp$V6, drop = TRUE)
   # loop tr' all cyclones:
   for (j in 1:length(cycl_mx_wsp)) {
-    #print(paste("Extracting TC gusts for ",as.character(cycl_mx_wsp[[j]][3][1,1])))
-    obs_gusts <- readHalfHourlyData(all_bomd[bdatas], units = "km/h")
+    print(paste("Extracting TC gusts for ",as.character(cycl_mx_wsp[[j]][3][1,1])))
+    obs_gusts <- readDailyObs(all_bomd[bdatas], units = "km/h")
     TC_gusts <- get_TC_gusts_per_cyclone(obs_gusts, unique(stn_ST),
                                          cycl_mx_wsp[[j]][1], cycl_mx_wsp[[j]][2],
                                          cycl_mx_wsp[[j]][3])
@@ -123,8 +119,10 @@ for (i in 1:length(grouped_data)) {
   new_str <- formatC(unique(grouped_data[[i]]$V2), width = 6, flag = "0")
   out_main <- paste("bom_", new_str, ".csv",sep = "")
   print(paste("Writing data to: ",out_main))
-  write.csv(all_TC_gusts,file = paste(outdir, out_main,sep = "") )
-  all_TC_gusts <- c()
+  if (length(all_TC_gusts) > 0) {
+    write.csv(all_TC_gusts, file = paste(outdir, out_main, sep = "") )
+    all_TC_gusts <- c()
+  }
 }
 
 etime <- proc.time() - t1

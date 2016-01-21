@@ -10,13 +10,9 @@ get_TC_gusts_per_cyclone = function(obs_gusts, ST, date, time, cyclone){
 #open dataset:
 #obs_gusts <- read.csv(bom_dset, skip = 1, header = FALSE)
 #Read Local Standard Time (LST) in BoM dataset:
-ds_yr <- obs_gusts$V8
-ds_m <- obs_gusts$V9
-ds_d <- obs_gusts$V10
-ds_hr <- obs_gusts$V11
-ds_min <- obs_gusts$V12
+
 #build the LST datetime string:
-ds_dattim1 <- ISOdatetime(ds_yr, ds_m, ds_d, ds_hr, ds_min, sec = 0, tz = "GMT")
+ds_dattim1 <- obs_gusts$datetime #ISOdatetime(ds_yr, ds_m, ds_d, ds_hr, ds_min, sec = 0, tz = "GMT")
 #Transform LST to UTC time (to match TC dataset):
 if (ST == "WA") {
   ds_dattim <- ds_dattim1 - 8.*3600
@@ -42,11 +38,11 @@ for (i in 1:length(tcdt)) {
 
 #rint("Select only wind records at given times")
 wnd_gusts <- obs_gusts[(obsidx),]
-if (length(wnd_gusts$V1) < 1) return(NA)
+if (length(wnd_gusts$station) < 1) return(NA)
 #Build up vector of name to match wnd_gusts:
 NN <- cyclone[1,1]
 cycl_name <- c()
-cycl_name[1:length(wnd_gusts$V1)] <- as.character(NN)
+cycl_name[1:length(wnd_gusts$station)] <- as.character(NN)
 #Return cyclonic wind speeds (same format as BoM dataset) plus cyclone name in last column:
 #print(paste("Return cyclonic wind speeds for ", as.character(NN)))
 
