@@ -34,7 +34,7 @@ outdir <- "N:/climate_change/CHARS/B_Wind/data/derived/obs/tc/daily/2006/"
 
 datadir <- "N:/climate_change/CHARS/B_Wind/data/raw/obs/daily/2006/"
 
-fname <- paste(outdir, "stn_TC_dist.txt", sep = "")
+fname <- paste(outdir, "stn_TC_dist.allstns.txt", sep = "")
 bom_stns_wTC <- read.table(fname, sep = ",", skip = 1, header = F)
 
 #Read BoM datasets (half-hour) located in Dir 'datadir'
@@ -95,7 +95,7 @@ for (i in 1:length(grouped_data)) {
   # loop tr' all cyclones:
   for (j in 1:length(cycl_mx_wsp)) {
     print(paste("Extracting TC gusts for ",as.character(cycl_mx_wsp[[j]][3][1,1])))
-    obs_gusts <- readDailyObs(all_bomd[bdatas], units = "km/h")
+    obs_gusts <- readDailyObs(all_bomd[bdatas], units = "m/s")
     TC_gusts <- get_TC_gusts_per_cyclone(obs_gusts, unique(stn_ST),
                                          cycl_mx_wsp[[j]][1], cycl_mx_wsp[[j]][2],
                                          cycl_mx_wsp[[j]][3])
