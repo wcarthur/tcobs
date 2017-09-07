@@ -30,29 +30,29 @@
 # Extract fields of interest:
 #OZ_TC_datab <- with(TC_BoM_datab,data.frame(name=NAME,UTC_time=TM,lon=LON,lat=LAT,radius=MN_RADIUS_GF_WIND)  )
 source('loadData.r')
-tc_fname <- "Allstorms.ibtracs_wmo.v03r06.csv"
+tc_fname <- "C:/WorkSpace/data/TC/Allstorms.ibtracs_wmo.v03r09.csv"
 TC_datab <- read.csv(tc_fname, skip = 1, header = T)
 OZ_TC_datab <- with(TC_datab,data.frame(name = Name, UTC_time = ISO_time,
                                         lon = Longitude, lat = Latitude,
-                                        radius = Pressure))
+                                        pressure = Pres.WMO., serialno = Serial_Num))
 
 #Read list of BoM stns and location:
 
-datadir <- "N:/climate_change/CHARS/B_Wind/data/raw/obs/daily/2006/"
-stnFile <- paste(datadir, "DC02D_StnDet_99999999720437.txt", sep = "")
+datadir <- "C:/Workspace/data/raw/daily_max_wind_gust/"
+stnFile <- paste(datadir, "DC02D_StnDet_999999999425050.txt", sep = "")
 stations <- readStationFile(stnFile, header = F, skip = 1)
 
 #Write all stations which are closer than 'mx_d' km to a TC track and are open at the time of the TC pass
 #Write also stations not included in the two rules listed above with the reason (as a check)
 t1 <- proc.time()
-#mx_d <- 200.0
+mx_d <- 200.0
 #mx_d <- 400.0
-mx_d <- 600.0
+#mx_d <- 600.0
 keep_name <- c()
-outdir <- "N:/climate_change/CHARS/B_Wind/data/derived/obs/tc/daily/2006/"
-outputFile <- paste(outdir, "stn_TC_dist.allstns.txt", sep = "")
+outdir <- "C:/Workspace/data/derived/tc/"
+outputFile <- paste(outdir, "stn_TC_dist.allstns_200.txt", sep = "")
 write.table("Database of BoM stations affected by TC", file = outputFile, append = FALSE)
-write.table("Stn name BoM_ID State  Stn location TC_name  dist (km)   date passed  TC Radius (km)", file = outputFile, append = TRUE)
+write.table("Station, BoM_ID, State, Lat, Lon, Name, Serialnum,  dist (km), date passed, TC pressure (hPa)", file = outputFile, append = TRUE)
 
 for (i in 1:length(stations$stnId)) {
   stnID <- stations$stnId[i]
@@ -62,11 +62,11 @@ for (i in 1:length(stations$stnId)) {
   stn_lat <- stations$stnLat[i]*(pi/180.0)
   stn_lon <- stations$stnLon[i]*(pi/180.0)
 
-  stn_start <- stations$stnOpenDate[i]
-  if (is.na(stations$stnCloseDate[i])) {
+  stn_start <- stations$stnDataStart[i]
+  if (is.na(stations$stnDataEnd[i])) {
     stn_close = strptime("2100-01-01", format = "%Y-%m-%d", tz = "GMT")
   }else{
-    stn_close = stations$stnCloseDate[i]
+    stn_close = stations$stnDataEnd[i]
   }
 
   for (k in 1:length(OZ_TC_datab$name)) {
@@ -83,7 +83,8 @@ for (i in 1:length(stations$stnId)) {
     dist_2stn <- 1.852*(180*60/pi)*dd
     #print(paste("dist = ",dist_2stn,sep="") )
     if (dist_2stn <= mx_d) {
-      keep_name <- as.character(OZ_TC_datab[k, 1])
+      keep_name <- as.character(OZ_TC_datab$name[k])
+      serialnum <- as.character(OZ_TC_datab$serialno[k])
       TC_date = strptime(OZ_TC_datab[k, 2], format = "%Y-%m-%d %H:%M:%S", tz = "GMT")
       if (TC_date >= stn_start & TC_date <= stn_close) {
         #Station is close enough, record station, distance and time of hit:
@@ -91,7 +92,7 @@ for (i in 1:length(stations$stnId)) {
                           stnID, stn_state,
                           signif((180.0/pi)*stn_lat, 8),
                           signif((180.0/pi)*stn_lon, 8),
-                          keep_name,round(dist_2stn, 1),
+                          keep_name, serialnum, round(dist_2stn, 1),
                           OZ_TC_datab[k, 2], OZ_TC_datab[k, 5], sep = ","),
                     file = outputFile, append = TRUE, row.names = FALSE,
                     col.names = FALSE, quote = FALSE)

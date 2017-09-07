@@ -75,7 +75,7 @@ readHalfHourlyData = function(obsfile, units="m/s"){
 
 readStationFile = function(stationfile, header = F, skip = 1){
   # Read a formatted station file.
-  input = read.csv(stationfile, sep = ",", header = header, skip = skip)
+  input = read.csv(stationfile, sep = ",", header = header, skip = skip, strip.white = T)
   stnId = input$V2
   stnName = input$V4
   stnLat = input$V7

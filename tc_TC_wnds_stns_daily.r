@@ -30,11 +30,11 @@ source('loadData.r')
 #
 t1 <- proc.time()
 #Read database of stations affected by TCs:
-outdir <- "N:/climate_change/CHARS/B_Wind/data/derived/obs/tc/daily/2006/"
+outdir <- "C:/Workspace/data/derived/tc/"
 
-datadir <- "N:/climate_change/CHARS/B_Wind/data/raw/obs/daily/2006/"
+datadir <- "C:/Workspace/data/raw/daily_max_wind_gust/"
 
-fname <- paste(outdir, "stn_TC_dist.allstns.txt", sep = "")
+fname <- paste(outdir, "stn_TC_dist.allstns_200.txt", sep = "")
 bom_stns_wTC <- read.table(fname, sep = ",", skip = 1, header = F)
 
 #Read BoM datasets (half-hour) located in Dir 'datadir'
@@ -71,8 +71,10 @@ for (i in 1:length(grouped_data)) {
                        stn_name$V1,stn_ST$V3,
                        " (",unique(stn_lat), unique(stn_lon),
                        ")", sep = ",")
+  
   # open corresponding BoM dataset:
   bdatas <- which(as.numeric(unique(stn_id)) == as.numeric(bom_substr))
+  
   # Test for errors (n.b. character(0) is numeric!!)
   ZZ <- try(ifelse(bdatas >= 1, bdatas, NA))
   # Write to external file list of stations not found in BoM-provided datasets:

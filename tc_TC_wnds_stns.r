@@ -30,12 +30,13 @@ source('loadData.r')
 #
 t1 <- proc.time()
 #Read database of stations affected by TCs:
-outdir <- "N:/climate_change/CHARS/B_Wind/data/derived/obs/tc/ibtracs/"
+datadir <- "C:/WorkSpace/data/derived/tc/"
+outdir <- "C:/WorkSpace/data/derived/tc/200km/"
 
 
 #N.B. Change non-readable characters [ ] by " " (stn name should be read as a single string)
 
-fname <- paste(indir, "stn_TC_dist.ibtracs.txt", sep = "")
+fname <- paste(datadir, "stn_TC_dist.allstns_200.txt", sep = "")
 bom_stns_wTC <- read.table(fname, sep = ",", skip = 1, header = F)
 
 #Read BoM datasets (half-hour) located in Dir 'datadir'
