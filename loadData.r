@@ -4,8 +4,8 @@
 
 readDailyObs = function(obsfile, units = "m/s"){
   # Read a file that contains daily maximum wind gust data.
-  # These files are described in DC02D_Notes_999999997960863.txt
-  # See /nas/gemd/climate_change/CHARS/B_Wind/data/raw/obs/daily
+  # These files are described in DC02D_Notes_999999999425050.txt
+  # See /nas/cds/internal/hazard_events/archive/BOM_data/daily_max_wind_gust
   #
   # NOTES:
   # Units of wind speed vary between versions of this data. Some cases
@@ -41,14 +41,19 @@ readDailyObs = function(obsfile, units = "m/s"){
 
 readHalfHourlyData = function(obsfile, units="m/s"){
   # Read a file that contains half-hourly observations.
-  # These files are described in HM01X_Notes_999999997960860.txt
-  # See /nas/gemd/climate_change/CHARS/B_Wind/data/raw/obs/halfhourly
+  # These files are described in HM01X_Notes_999999999425080.txt
+  # See /nas/cds/internal/hazard_events/archive/BOM_data/hourly_data
   #
   # NOTES:
   # Units of wind speed vary between versions of this data. Some cases
   # have units of km/h, others m/s. The `units` argument indicates the
   # units of the raw data, and the data are converted to m/s by default.
   # Only handles conversion between m/s and km/h.
+  #
+  # NOTES:
+  # 2017-09-08: Updated to read extended format files that include 
+  #             temperature, wet bulb temp and dew point temp 
+  #             observations.
   input <- read.csv(obsfile, skip = 1, header = FALSE, strip.white = T)
   ds_yr <- input$V8
   ds_m <- input$V9
@@ -59,13 +64,13 @@ readHalfHourlyData = function(obsfile, units="m/s"){
   dt <- ISOdatetime(ds_yr, ds_m, ds_d, ds_hr, ds_min, sec = 0, tz = "GMT")
   station = input$V2
   if (units == "km/h") {
-    gust = input$V17 / 3.6
+    gust = input$V25 / 3.6
   }else{
-    gust = input$V17
+    gust = input$V25
   }
 
-  direction = input$V15
-  quality = input$V18
+  direction = input$V26
+  quality = input$V22
   data = data.frame(station = station, datetime = dt,
                     gust = gust, direction = direction,
                     quality = quality )
